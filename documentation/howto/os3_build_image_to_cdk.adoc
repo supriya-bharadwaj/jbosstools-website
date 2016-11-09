@@ -1,0 +1,166 @@
+= Build and Deploy Docker-formatted Container Image to Container Development Kit OpenShift Registry
+:page-layout: howto
+:page-tab: docs
+:page-status: green
+:experimental:
+:imagesdir: ./images
+
+In this article we deploy the Docker based microservices, `frontend` and `bonjour`, into an OpenShift Container Platform instance running on Red Hat Container Development Kit, in the IDE. We use the Helloworld-MSA tutorial available in GitHub at: https://github.com/redhat-helloworld-msa/helloworld-msa. 
+
+The article shows how you can easily build a local Docker image, not present on Docker Hub, to Container Development Environment and then deploy that image to an OpenShift Container Platform instance, using the IDE. `frontend` and `bonjour` microservices, used here, are examples of such private images that are not present in Docker Hub.
+
+To build and deploy a Docker-formatted Container Image:
+
+. <<javascript_modules>>
+. <<build_frontend>>
+.. <<deploy_frontend>>
+. <<connect_microservices>>
+.. <<deploy_bonjour>>
+.. <<scale_pod>>
+. <<edit_bonjour>>
+.. <<view_edited_bonjour>>
+
+=== Prerequisites
+. Install nmp: Before running the IDE, install npm on your system. See the npm documentation for instructions for various platforms: https://docs.npmjs.com/getting-started/what-is-npm. 
+. Download and install JDK 8.
+. Install the IDE.
+. Install Container Development Kit (for installation instructions, see https://access.redhat.com/documentation/en/red-hat-container-development-kit/2.2/paged/installation-guide/).
+. Clone the following projects and then import them into the IDE using the `Import` wizard (from `File` > `Open Projects from File System`).
+.. `bonjour` project from: https://github.com/redhat-helloworld-msa/bonjour
+.. `frontend` project from: https://github.com/redhat-helloworld-msa/frontend
+. Set up the oc client binaries in the IDE from `Window` > `Preferences`, expand `JBoss Tools`, and then click `OpenShift 3`.
+
+[[javascript_modules]]
+=== Install the javascript Modules
+
+To download and install all the required javascript modules:
+
+. In the `Project Explorer` view, expand `frontend` and right-click `package.json`.
+. Click `Run As` > `npm Install` to download and install the required javascript modules in the project.
+
+`Result:` After the build is complete, a new `node_modules` folder is listed under the project in the `Project Explorer` view.
+
+[[build_frontend]]
+=== Build the frontend Microservice
+
+In this section we build the `frontend` microservice which is the landing page for the application being built. The `frontend` microservice calls other microservices (`bonjour`, in this case) and displays the results from these calls.
+
+To build the Docker-formatted Container image:
+
+. In the `Project Explorer` view, expand `frontend` and right-click `Dockerfile` and then click `Run As` > `Docker Image Build`.
+. In the `Docker Image Build Configuration` window:
+.. In the `Connection` list, select `Container Development Environment`.
+.. In the `Repository Name` field, type `demo/frontend`.
+. Click `OK`.
+
+`Result:` The Docker-formatted Container image starts building against the Docker Daemon. 
+
+[[deploy_frontend]]
+==== Deploy the frontend Microservice
+
+After the build is complete, the Docker-formatted Container image `demo/frontend` is available in the `Docker Explorer` under `Container Development Environment`. 
+
+To deploy the frontend microservice:
+
+. In the `Docker Explorer` view, `Container Development Environment` > `Images`, right-click `demo/frontend` and click `Deploy to OpenShift`. 
+. In the `Deploy an Image` window, click `New`.
+. In the `Create OpenShift Project` window:
+.. In the `Project Name` field, type the name of the new project, `demo`.
+.. Optionally, in the `Display Name` and `Description` fields, enter the required details.
+.. Click `OK`.
+. In the `Deploy an Image` window, click the `Push Image to Registry` check box and click `Next`.
+. In the `Deployment Configuration & Scalability` window, change the following environment variables:
+.. Click `OS_PROJECT` to open the `Environment Variable` window and in the `Value` field, type `demo` (from step 5) and click `OK`.
+. In the `Deployment Configuration & Scalability` window, click `Next` and then click `Finish`. After the Docker-formatted Container image is pushed to the Docker Registry on OpenShift Container Platform, the Eclipse plugin generates all the required OpenShift Container Platform resources for the application to run.
+. In the `Deploy Image to OpenShift` window, review the details of deploying the image and click `OK`.
+. In the `OpenShift Explorer` view, expand the connection > _{project_name}_ > `Service` > `Pod` to see the Pod running. Right-click the Pod and click `Pod Log`. The `Console` view shows the `frontend` service running.
+In the `OpenShift Explorer` view, expand the application and right-click the service and click `Show In` > `Web Browser`. 
+
+`Result:` The `frontend` microservice, in the Bonjour Service shows: `Error getting value from service <microservice>` meaning the `bonjour` microservice must be connected.
+
+[[connect_microservices]]
+=== Connect the frontend and bonjour Microservices
+
+In this section we build the `bonjour` microservice and then view it on the `frontend` microservice. The `bonjour` microservice is a simple `node.js` application that returns the string `bonjour-de-<pod_ID>`.
+
+To connect the Microservices:
+
+. In the `Project Explorer` view, expand `bonjour` and right-click `package.json`.
+. Click `Run As` > `npm Install`.
+. In the `Project Explorer` view, expand `bonjour` and right-click `Dockerfile`.
+. Click `Run As` > `Docker Image Build`. 
+. In the `Docker Image Build Configuration` window:
+.. In the `Connection` list, select `Container Development Environment`.
+.. In the `Repository Name` field, type `demo/bonjour`.
+. Click `OK`.
+
+[[deploy_bonjour]]
+==== Deploy the bonjour Microservice
+
+You can either deploy the Docker-formatted Container image from the `Docker Explorer` (as done in step 3 of the `Building a Docker-formatted Container Image` section above), or in the following way from the `OpenShift Explorer` view:
+
+. In the `OpenShift Explorer` view, right-click the project (`demo`), and click `Deploy Docker Image`.
+. In the `Deploy an Image` window:
+.. In the `Docker Connection` list, click the Docker connection.
+.. In the `Image Name` field, type `demo/bonjour`.
+.. Click the `Push Image to Registry` check box.
+. Click `Next`.
+. In the `Deployment Configuration & Scalability` window, click `Next`.
+. In the `Services and Routing Settings` window, click `Finish`.
+. In the `eploy Image to OpenShift` window, click `OK`.
+
+[[scale_pod]]
+==== Scale the Pod
+To see the `bonjour` service with the Pod running:
+
+. In the `OpenShift Explorer` view, expand the application name (`demo`).
+. Right-click the pod and click `Pod Log` to check if the pod is running.
+. Navigate to the browser where you have the application running and click `Refresh Results`. You will see a greeting from the bonjour service with a hostname that matches the Pod name in the `OpenShift Explorer` view.
+. In the `OpenShift Explorer` view, right-click the service and click `Scale` > `Up`. You now have two Pods running on OpenShift Container Platform.
+
+`Result`: Navigate to the browser and click `Refresh Results` to see the service balancing between the two Pods.
+
+[[edit_bonjour]]
+=== Edit the bonjour Microservice
+
+In this section we edit the `bonjour` microservice and then view the results on the `frontend` microservice.
+
+To edit the `bonjour` microservice:
+
+. In the `Project Explorer` view, expand `bonjour`, and double-click `bonjour.js` to open it in the default editor.
+. Find:
++
+----
+function say_bonjour(){
+    Return “Bonjour de “ + os.hostname();
+----
++
+. Change it to:
++
+----
+    function say_bonjour(){
+    Return “Salut de “ + os.hostname();
+----
++
+. Save the file.
+
+[[view_edited_bonjour]]
+==== View the Edited bonjour Microservice on the frontend Microservice
+After you have edited the `bonjour`microservice:
+
+. In the `Project Explorer` view, expand `bonjour`, and right-click `Dockerfile`.
+. Click `Run As` > `Docker Image Build`.
++
+[NOTE]
+====
+Here, the Docker run configuration, the connection, and the repository name used earlier are being reused. To edit the configuration, open the `Run Configuration` window. 
+====
++
+After the `Console` view shows that the Docker-formatted Container image has been successfully pushed to the Docker Daemon:
+
+. In the `Docker Explorer` view, expand `Container Development Environment` > `Images`.
+. Right-click the image and click `Deploy to OpenShift`.
+. In the `Deploy an Image` window, click `Push Image to Registry` and then click `Next`.
+. In the `Deployment Configuration & Scalability` window, click `Finish`. The `OpenShift Explorer` view, under `bonjour` shows the Pods being added and then running. Navigate to the browser and click `Refresh Results`.
+
+`Result`: The new greeting appears.
