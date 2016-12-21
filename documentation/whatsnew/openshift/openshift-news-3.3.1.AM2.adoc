@@ -16,10 +16,10 @@ endif::finalnn[]
 === User controlled hostname when creating routes
 
 When an application is being deployed to Openshift, a route is optionally created if required by the user.
-Openshift/CDK used to create an http://xip.io[xip.io] based hostname. User can now set its own hostname.
-This allows for both changing the DNS to local IP provider (http://nip.io[nip.io]) or using you own enterprise DNS naming strategy.
+Openshift/CDK is used to create an http://xip.io[xip.io] based hostname. User can now set the hostname.
+This allows for both, changing the DNS to local IP provider (http://nip.io[nip.io]) and using your own enterprise DNS naming strategy.
 
-The hostname can be accessed from the Services and Routing Settings page when deploying an application:
+The hostname can be accessed from the `Services and Routing Settings` page when deploying an application:
 
 image::./images/wizard-new-application-hostname.png[width=600]
 
@@ -28,11 +28,11 @@ related_jira::JBIDE-23147[]
 === Create routes targetting a specific service port
 
 When an application is being deployed to Openshift, a route is optionally created if required by the user.
-It is now possible to target a specific port (exposed by a to be created service). When the ports are being
-displayed, it is now possible to select one of them to be used by the route. By default, none of the ports
-is selected (this round robin is performed).
+It is now possible to target a specific port (exposed by a to-be-created service). When the ports are being
+displayed, it is now possible to select one of them and then this selected port can be used by the route. By default, none of the ports
+are selected (this round robin is performed).
 
-The route port can be accessed from the Services and Routing Settings page when deploying an application:
+The route port can be accessed from the `Services and Routing Settings` page when deploying an application:
 
 image::./images/wizard-new-application-route-port.png[width=600]
 

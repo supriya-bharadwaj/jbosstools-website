@@ -15,6 +15,6 @@ endif::finalnn[]
 
 == New Menu in Forge Console view to trigger the Command Selection Dialog
 
-Now it's possible to bring the Command Selection Dialog menu (invoked when Ctrl/Command + 4 is pressed) by choosing the "Open Command Selection Dialog..." menu item in the Forge Console view.
+Users can now open the `Command Selection Dialog` menu (Ctrl/Command + 4) by choosing the `Open Command Selection Dialog` menu in the `Forge Console` view.
 
 image::images/4.4.2.AM2/open-command-dialog.png[]
